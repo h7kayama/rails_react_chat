@@ -10,3 +10,10 @@ App.room = App.cable.subscriptions.create "RoomChannel",
 
   speak: (message) ->
     @perform 'speak', message: message
+
+window.onload = () ->
+  document.querySelector('[data-behavior=room_speaker]').onkeypress = (event) ->
+    if event.keyCode is 13
+      App.room.speak event.target.value
+      event.target.value = ''
+      event.preventDefault()
