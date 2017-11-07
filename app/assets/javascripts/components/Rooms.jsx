@@ -1,54 +1,60 @@
 let Channel;
-
 let Rooms = React.createClass({
-  getInitialState(){
-    console.log("call Rooms#getInitialState")
 
+  getInitialState(){
     _this = this
     Channel = App.cable.subscriptions.create('RoomChannel', {
-      connected() { console.log("call Rooms#connected") },
-      disconnected() { console.log("call Rooms#disconnected") },
+      connected() { },
+      disconnected() { },
       received(data) {
-        console.log("call Rooms#received")
-        _this.updateMessages(data['message'])
+        // 接続数の更新 or メッセージの更新
+        if (_message = data['message']) {
+          _this.updateMessages(_message)
+        } else if (_num = data['num']) {
+          _this.updateNum(_num)
+        }
       },
       speak(message) {
         this.perform('speak', {message: message})
       }
     })
 
-    return {messages: this.props.messages, content: ""}
+    return {messages: this.props.messages, message: "", num: 0}
   },
 
-  speak(e) {
-    console.log("call Rooms#speak")
-    Channel.speak(this.state.content)
-    this.setState({content: ""})
+  /* メッセージを投稿する */
+  postMessage(e) {
+    Channel.speak(this.state.message)
+    this.setState({message: ""})
     e.preventDefault()
   },
 
+  /* 接続数を更新する */
+  updateNum(num) {
+    this.setState({num: num})
+  },
+
+  /* メッセージ一覧を更新する */
   updateMessages(message) {
-    console.log("call Rooms#updateMessages")
     this.setState({messages: [...this.state.messages, message]})
   },
 
-  changeContent(e) {
-    console.log("call Rooms#changeContent")
-    this.setState({content: e.target.value})
+  /* メッセージを変更する */
+  changeMessage(e) {
+    this.setState({message: e.target.value})
   },
 
   render() {
-    console.log("call Rooms#render")
-    let {messages,content} = this.state
+    let {messages,message,num} = this.state
     return (
       <div>
-        <h1>Chat room</h1>
+        <h1>Chat room <small>接続数: {num}</small></h1>
         {messages.map((message,index)=>{
           return <p key={index}>{message.content}</p>
         })}
-        <form onSubmit={this.speak}>
-          <label>Say something:</label>
-          <input type="text" value={content} onChange={this.changeContent} />
+        <form onSubmit={this.postMessage}>
+          <label>Say something: </label>
+          <input type="text" value={message} onChange={this.changeMessage} />
         </form>
       </div>
     )
