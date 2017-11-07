@@ -1,12 +1,1 @@
-<%= react_component('Rooms', name: 'John') %>
-
-<h1>Chat room</h1>
-
-<div id="messages">
-  <%= render @messages %>
-</div>
-
-<form>
-  <label>Say something:</label><br>
-  <input type="text" data-behavior="room_speaker">
-</form>
+<%= react_component('Rooms', messages: @messages) %>
